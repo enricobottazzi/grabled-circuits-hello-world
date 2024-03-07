@@ -1,7 +1,7 @@
 from random import randint, shuffle
 
 def main():
-    # Define the circuit by mixing a set of gates
+    # Define the circuit as a set of gates
     # Define a gate #1 AND that takes two external inputs and returns one internal output
     # Define a gate #2 AND that takes one external input and one internal input from the #1 gate and returns one output
     # Define a gate #3 OR that takes one external input and one internal input from the #1 gate and returns one output
@@ -21,14 +21,14 @@ def main():
     ke0 = randint(0, 100000)
     ke1 = randint(0, 100000)
 
-    # Garbled table for gate #1
+    # Labelled table for gate #1
     # b   | c  | e
     # kb0 | kc0| ke0
     # kb0 | kc1| ke0
     # kb1 | kc0| ke0
     # kb1 | kc1| ke1
 
-    garbled_table_1 = [[kb0, kc0, ke0], [kb0, kc1, ke0], [kb1, kc0, ke0], [kb1, kc1, ke1]]
+    labelled_table_1 = [[kb0, kc0, ke0], [kb0, kc1, ke0], [kb1, kc0, ke0], [kb1, kc1, ke1]]
 
     # Gate #2 AND
     # a | e | f
@@ -42,14 +42,14 @@ def main():
     kf0 = randint(0, 100000)
     kf1 = randint(0, 100000)
 
-    # Garbled table for gate #2
+    # Labelled table for gate #2
     # a   | e  | f
     # ka0 | ke0| kf0
     # ka0 | ke1| kf0
     # ka1 | ke0| kf0
     # ka1 | ke1| kf1
 
-    garbled_table_2 = [[ka0, ke0, kf0], [ka0, ke1, kf0], [ka1, ke0, kf0], [ka1, ke1, kf1]]
+    labelled_table_2 = [[ka0, ke0, kf0], [ka0, ke1, kf0], [ka1, ke0, kf0], [ka1, ke1, kf1]]
 
     # Gate #3 OR
     # e | d | g
@@ -63,52 +63,52 @@ def main():
     kg0 = randint(0, 100000)
     kg1 = randint(0, 100000)
 
-    # Garbled table for gate #3
+    # Labelled table for gate #3
     # e   | d  | g
     # ke0 | kd0| kg0
     # ke1 | kd0| kg1
     # ke0 | kd1| kg1
     # ke1 | kd1| kg1
 
-    garbled_table_3 = [[ke0, kd0, kg0], [ke1, kd0, kg1], [ke0, kd1, kg1], [ke1, kd1, kg1]]
+    labelled_table_3 = [[ke0, kd0, kg0], [ke1, kd0, kg1], [ke0, kd1, kg1], [ke1, kd1, kg1]]
 
-    # Permute and double encrypt the output wire of each gate
-    shuffle(garbled_table_1)
-    shuffle(garbled_table_2)
-    shuffle(garbled_table_3)
+    # Permute and garble the output wire of each gate
+    shuffle(labelled_table_1)
+    shuffle(labelled_table_2)
+    shuffle(labelled_table_3)
 
     def dummy_encrypt(value, key):
         return value + key
     
-    # Double_encrypted_e_col
+    # garbled_e_col
     # E_kb0(E_kc0(ke0)) 
     # E_kb0(E_kc1(ke0)) 
     # E_kb1(E_kc0(ke0)) 
     # E_kb1(E_kc1(ke1)
-    double_encrypted_e_col = []
+    garbled_e_col = []
     for i in range(4):
-        double_encrypted_e = dummy_encrypt(dummy_encrypt(garbled_table_1[i][2], garbled_table_1[i][1]), garbled_table_1[i][0])
-        double_encrypted_e_col.append(double_encrypted_e)
+        garbled_e = dummy_encrypt(dummy_encrypt(labelled_table_1[i][2], labelled_table_1[i][1]), labelled_table_1[i][0])
+        garbled_e_col.append(garbled_e)
 
-    # Double_encrypted_f_col
+    # garbled_f_col
     # E_ka0(E_ke0(kf0))
     # E_ka0(E_ke1(kf0))
     # E_ka1(E_ke0(kf0))
     # E_ka1(E_ke1(kf1))
-    double_encrypted_f_col = []
+    garbled_f_col = []
     for i in range(4):
-        double_encrypted_f = dummy_encrypt(dummy_encrypt(garbled_table_2[i][2], garbled_table_2[i][1]), garbled_table_2[i][0])
-        double_encrypted_f_col.append(double_encrypted_f)
+        garbled_f = dummy_encrypt(dummy_encrypt(labelled_table_2[i][2], labelled_table_2[i][1]), labelled_table_2[i][0])
+        garbled_f_col.append(garbled_f)
 
-    # Double_encrypted_g_col
+    # garbled_g_col
     # E_ke0(E_kd0(kg0))
     # E_ke1(E_kd0(kg1))
     # E_ke0(E_kd1(kg1))
     # E_ke1(E_kd1(kg1))
-    double_encrypted_g_col = []
+    garbled_g_col = []
     for i in range(4):
-        double_encrypted_g = dummy_encrypt(dummy_encrypt(garbled_table_3[i][2], garbled_table_3[i][1]), garbled_table_3[i][0])
-        double_encrypted_g_col.append(double_encrypted_g)
+        garbled_g = dummy_encrypt(dummy_encrypt(labelled_table_3[i][2], labelled_table_3[i][1]), labelled_table_3[i][0])
+        garbled_g_col.append(garbled_g)
     
     # Produce output translation table. 
     # If the output of the circuit is equal to kf0, then the output of the circuit is 0
@@ -129,20 +129,20 @@ def main():
     
     decrypted_e_col = []
     for i in range(4):
-        decrypted_e_col.append(dummy_decrypt(dummy_decrypt(double_encrypted_e_col[i], garbled_inputs[2]), garbled_inputs[1]))
+        decrypted_e_col.append(dummy_decrypt(dummy_decrypt(garbled_e_col[i], garbled_inputs[2]), garbled_inputs[1]))
 
     decrypted_f_col = []
     for i in range(4):
         decrypted_f_col_row = []
         for j in range(4):
-            decrypted_f_col_row.append(dummy_decrypt(dummy_decrypt(double_encrypted_f_col[i], decrypted_e_col[j]), garbled_inputs[0]))
+            decrypted_f_col_row.append(dummy_decrypt(dummy_decrypt(garbled_f_col[i], decrypted_e_col[j]), garbled_inputs[0]))
         decrypted_f_col.append(decrypted_f_col_row)
 
     decrypted_g_col = []
     for i in range(4):
         decrypted_g_row = []
         for j in range(4):
-            decrypted_g_row.append(dummy_decrypt(dummy_decrypt(double_encrypted_g_col[i], garbled_inputs[3]), decrypted_e_col[j]))
+            decrypted_g_row.append(dummy_decrypt(dummy_decrypt(garbled_g_col[i], garbled_inputs[3]), decrypted_e_col[j]))
         decrypted_g_col.append(decrypted_g_row)
     
     # The evaluator uses the output translation table to decrypt the output of the circuit

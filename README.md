@@ -8,3 +8,4 @@ In particular:
 
 - `and_gate.py` is based on the first example in Yehuda Lindell's talk.
 - `circuit_1.py` is based on the second example in Yehuda Lindell's talk.
+- `circuit_2.py` is based on the example in Vitakik's blogpost.
